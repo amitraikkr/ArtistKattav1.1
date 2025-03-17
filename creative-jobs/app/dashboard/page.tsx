@@ -7,16 +7,39 @@ import { ImageCarousel } from "@/components/image-carousel"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Pencil, Share2, ThumbsUp, MessageCircle, ImageIcon, CalendarDays, Briefcase } from "lucide-react"
+import { Pencil, Share2, Home, CalendarDays, Briefcase, Building2, Bookmark, MapPin, Clock, DollarSign, Calendar, Users, MoreHorizontal } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link" // Add Link import
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import DetailedView from '../../components/DetailedView'
+
+// Define the type for an opportunity
+interface Opportunity {
+  id: number;
+  title: string;
+  company: string;
+  companyLogo: string;
+  location: string;
+  type: string;
+  category: string;
+  salary: string;
+  postedDate: string;
+  deadline: string;
+  description: string;
+  featured: boolean;
+  applications: number;
+  email: string;
+}
 
 export default function DashboardPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+  const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null)
+  const [isDetailViewOpen, setIsDetailViewOpen] = useState(false)
 
   const carouselImages = [
     {
@@ -84,6 +107,31 @@ export default function DashboardPage() {
     },
   ]
 
+  const jobTypes = [
+    { id: "full-time", name: "Full Time" },
+    { id: "part-time", name: "Part Time" },
+    { id: "contract", name: "Contract" },
+    { id: "freelance", name: "Freelance" },
+    { id: "internship", name: "Internship" },
+  ];
+
+  useEffect(() => {
+    const fetchOpportunities = async () => {
+      try {
+        const response = await fetch("https://d69leb59mi.execute-api.ap-south-1.amazonaws.com/prod/jobs/date-range");
+        if (!response.ok) {
+          throw new Error("Failed to fetch opportunities");
+        }
+        const data = await response.json();
+        setOpportunities(data);
+      } catch (error) {
+        console.error("Error fetching opportunities:", error);
+      }
+    };
+
+    fetchOpportunities();
+  }, []);
+
   useEffect(() => {
     checkAuth()
   }, [])
@@ -102,6 +150,11 @@ export default function DashboardPage() {
       setIsLoading(false)
       router.push('/login')
     }
+  }
+
+  const handleApplyClick = (opportunity: Opportunity) => {
+    setSelectedOpportunity(opportunity)
+    setIsDetailViewOpen(true)
   }
 
   if (isLoading) {
@@ -133,8 +186,8 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2 mt-3 ml-[52px]">
           <Button variant="ghost" size="sm" className="text-white hover:bg-[#1f1f1f]">
-            <ImageIcon className="mr-2 h-4 w-4" />
-            Photo/Video
+            <Home className="mr-2 h-4 w-4" />
+            Agencies
           </Button>
           <Button variant="ghost" size="sm" className="text-white hover:bg-[#1f1f1f]">
             <CalendarDays className="mr-2 h-4 w-4" />
@@ -155,7 +208,7 @@ export default function DashboardPage() {
         </Card>
 
         <Card className="p-6 bg-ink-light border-ink">
-          <h2 className="text-lg font-semibold text-white mb-2">Featured Artists</h2>
+          <h2 className="text-lg font-semibold text-white mb-2">Featured Agencies</h2>
           <p className="text-muted-foreground mb-4">Discover talented artists in your field</p>
           <Button className="w-full">Explore Agencies</Button>
         </Card>
@@ -173,7 +226,7 @@ export default function DashboardPage() {
         <ImageCarousel images={carouselImages} />
       </div>
 
-      <Card className="p-4 mb-4 bg-[#1A1A1A] border-[#2f2f2f]">
+      {/* <Card className="p-4 mb-4 bg-[#1A1A1A] border-[#2f2f2f]">
         <div className="flex items-center space-x-2 overflow-x-auto pb-2">
           {["All", "Visual Arts", "Music", "Performing Arts", "Writing"].map((filter) => (
             <Button
@@ -191,53 +244,135 @@ export default function DashboardPage() {
             </Button>
           ))}
         </div>
-      </Card>
+      </Card> */}
 
-      {filteredPosts.map((post) => (
-        <Card key={post.id} className="p-4 space-y-4 bg-[#1A1A1A] border-[#2f2f2f]">
-          <div className="flex items-center space-x-3">
-            <Link href={`/profile/${post.id}`}>
-              <Image
-                src={post.image || "/placeholder.svg"}
-                alt={post.user}
-                width={40}
-                height={40}
-                className="rounded-full hover:opacity-80 transition-opacity"
-              />
-            </Link>
-            <div>
-              <Link
-                href={`/profile/${post.id}`}
-                className="font-semibold text-white hover:text-primary transition-colors"
-              >
-                {post.user}
+      <h2 className="text-xl font-bold text-white mb-4">Top Incoming Events</h2>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredPosts.slice(0, 3).map((post) => (
+          <Card key={post.id} className="p-4 space-y-4 bg-[#1A1A1A] border-[#2f2f2f]">
+            <div className="flex items-center space-x-3">
+              <Link href={`/profile/${post.id}`}>
+                <Image
+                  src={post.image || "/placeholder.svg"}
+                  alt={post.user}
+                  width={40}
+                  height={40}
+                  className="rounded-full hover:opacity-80 transition-opacity"
+                />
               </Link>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <span>{post.role}</span>
-                <span className="mx-1">•</span>
-                <span className="text-primary">{post.talent}</span>
-                <span className="mx-1">•</span>
-                <span>{post.time}</span>
+              <div>
+                <Link
+                  href={`/profile/${post.id}`}
+                  className="font-semibold text-white hover:text-primary transition-colors"
+                >
+                  {post.user}
+                </Link>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <span>{post.role}</span>
+                  <span className="mx-1">•</span>
+                  <span className="text-primary">{post.talent}</span>
+                  <span className="mx-1">•</span>
+                  <span>{post.time}</span>
+                </div>
               </div>
             </div>
-          </div>
-          <p className="text-white">{post.content}</p>
-          <div className="flex items-center justify-between pt-2 border-t border-[#2f2f2f]">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-[#1f1f1f]">
-              <ThumbsUp className="mr-2 h-4 w-4" />
-              {post.likes}
-            </Button>
-            <Button variant="ghost" size="sm" className="text-white hover:bg-[#1f1f1f]">
-              <MessageCircle className="mr-2 h-4 w-4" />
-              {post.comments}
-            </Button>
-            <Button variant="ghost" size="sm" className="text-white hover:bg-[#1f1f1f]">
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
-            </Button>
-          </div>
-        </Card>
-      ))}
+            <p className="text-white">{post.content}</p>
+            <div className="flex items-center justify-between pt-2 border-t border-[#2f2f2f]">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-[#1f1f1f]">
+              More<MoreHorizontal className="mr-2 h-4 w-4" />
+                
+              </Button>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <h2 className="text-xl font-bold text-white mb-4">Jobs/Opportunities</h2>
+      <div className="grid gap-4 grid-cols-1">
+        {opportunities.map((job) => (
+          <Card
+            key={job.id}
+            className={cn(
+              "p-6 bg-ink-light border-ink hover:border-primary/50 transition-colors",
+              job.featured && "border-l-4 border-l-primary",
+            )}
+          >
+            <div className="flex items-start gap-4">
+              <Image
+                src={job.companyLogo || "/placeholder.svg"}
+                alt={job.company}
+                width={56}
+                height={56}
+                className="rounded-lg"
+              />
+              <div className="flex-1 space-y-1">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <Link
+                      href={`/opportunities/${job.id}`}
+                      className="text-lg font-semibold text-white hover:text-primary"
+                    >
+                      {job.title}
+                    </Link>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Building2 className="h-4 w-4" />
+                      {job.company}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                      <Bookmark className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <Badge variant="outline" className="border-primary/20 text-primary">
+                    {job.type}
+                  </Badge>
+                  <Badge variant="outline" className="border-ink text-white">
+                    <MapPin className="mr-1 h-3 w-3" />
+                    {job.location}
+                  </Badge>
+                  <Badge variant="outline" className="border-ink text-white">
+                    <DollarSign className="mr-1 h-3 w-3" />
+                    {job.salary}
+                  </Badge>
+                </div>
+                <p className="mt-3 text-muted-foreground">{job.description}</p>
+                <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-ink">
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Clock className="mr-1 h-4 w-4" />
+                    Posted {job.postedDate}
+                  </div>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Calendar className="mr-1 h-4 w-4" />
+                    Deadline: {job.deadline}
+                  </div>
+                  {/* <div className="flex items-center text-sm text-muted-foreground">
+                    <Users className="mr-1 h-4 w-4" />
+                    {job.applications} applications
+                  </div> */}
+                  <div className="ml-auto">
+                    <Button className="bg-primary hover:bg-primary/90" onClick={() => handleApplyClick(job)}>
+                      Apply Now
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {isDetailViewOpen && selectedOpportunity && (
+        <DetailedView
+          item={selectedOpportunity}
+          onClose={() => setIsDetailViewOpen(false)}
+        />
+      )}
     </div>
   )
 }

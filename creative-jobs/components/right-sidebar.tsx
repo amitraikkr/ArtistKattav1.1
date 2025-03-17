@@ -62,20 +62,20 @@ export default function RightSidebar() {
 
   const featuredArtists = [
     {
-      name: "Priya Sharma",
-      talent: "Classical Dancer",
+      name: "Director",
+      talent: "Film Industry",
       image: "/placeholder.svg",
       verified: true,
     },
     {
-      name: "Arun Kumar",
-      talent: "Tabla Maestro",
+      name: "Music Producer",
+      talent: "Music Industry",
       image: "/placeholder.svg",
       verified: true,
     },
     {
-      name: "Zara Ali",
-      talent: "Contemporary Artist",
+      name: "Film Editor:",
+      talent: "Film Industry",
       image: "/placeholder.svg",
       verified: false,
     },
@@ -85,7 +85,7 @@ export default function RightSidebar() {
     <aside className="fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-[320px] border-l border-ink bg-ink-light hidden lg:block">
       <Card className="p-4 mb-4 bg-[#1A1A1A] border-[#2f2f2f]">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-white">Browse by Category</h3>
+          <h3 className="font-semibold text-white">In Demand Talents</h3>
           <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:bg-[#1f1f1f]">
             See All
           </Button>
@@ -102,7 +102,7 @@ export default function RightSidebar() {
               >
                 <category.icon className="mr-2 h-4 w-4" />
                 {category.name}
-                <span className="ml-auto text-xs text-muted-foreground">{category.count.toLocaleString()}</span>
+                {/* <span className="ml-auto text-xs text-muted-foreground">{category.count.toLocaleString()}</span> */}
               </Button>
               {category.isActive && category.subCategories && (
                 <div className="ml-6 space-y-1">
@@ -125,7 +125,7 @@ export default function RightSidebar() {
 
       <Card className="p-4 bg-[#1A1A1A] border-[#2f2f2f]">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-white">Top Agencies</h3>
+          <h3 className="font-semibold text-white">Top Jobs</h3>
           <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:bg-[#1f1f1f]">
             View More
           </Button>
@@ -155,9 +155,9 @@ export default function RightSidebar() {
                 </div>
                 <p className="text-sm text-muted-foreground truncate">{artist.talent}</p>
               </div>
-              <Button variant="secondary" size="sm" className="bg-[#1f1f1f] hover:bg-[#2f2f2f] text-white">
+              {/* <Button variant="secondary" size="sm" className="bg-[#1f1f1f] hover:bg-[#2f2f2f] text-white">
                 Follow
-              </Button>
+              </Button> */}
             </div>
           ))}
         </div>

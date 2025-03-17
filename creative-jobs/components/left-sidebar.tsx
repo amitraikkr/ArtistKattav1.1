@@ -52,7 +52,7 @@ export default function LeftSidebar() {
                 Home
               </Button>
             </Link>
-            <Link href="/network">
+            {/* <Link href="/network">
               <Button
                 variant="ghost"
                 size="sm"
@@ -61,7 +61,7 @@ export default function LeftSidebar() {
                 <Users className="mr-2 h-4 w-4" />
                 Network
               </Button>
-            </Link>
+            </Link> */}
             <Link href="/messages">
               <Button
                 variant="ghost"
@@ -69,10 +69,10 @@ export default function LeftSidebar() {
                 className="w-full justify-start text-white hover:bg-ink-hover"
               >
                 <MessageSquare className="mr-2 h-4 w-4" />
-                Agencies
+                Events
               </Button>
             </Link>
-            <Link href="/jobs">
+            <Link href="/opportunities">
               <Button
                 variant="ghost"
                 size="sm"
@@ -82,27 +82,37 @@ export default function LeftSidebar() {
                 Jobs
               </Button>
             </Link>
-            <Link href="/saved">
+            <Link href="https://www.youtube.com/@Artistkatta-famous">
               <Button
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start text-white hover:bg-ink-hover"
               >
                 <Bookmark className="mr-2 h-4 w-4" />
-                Saved
+                YouTube
               </Button>
             </Link>
-            <Link href="/activity">
+            <Link href="https://www.facebook.com/profile.php?id=61574273244626">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-white hover:bg-ink-hover"
+              >
+                <Bookmark className="mr-2 h-4 w-4" />
+                Facebook
+              </Button>
+            </Link>
+            <Link href="/">
               <Button
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start text-white hover:bg-ink-hover"
               >
                 <Activity className="mr-2 h-4 w-4" />
-                Events
+                Instagram
               </Button>
             </Link>
-            <Link href="/community">
+            <Link href="/">
               <Button
                 variant="ghost"
                 size="sm"

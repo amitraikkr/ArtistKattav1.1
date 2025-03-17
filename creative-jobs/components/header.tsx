@@ -104,14 +104,14 @@ function HeaderContent() {
           <Button variant="ghost" className="h-12 px-4 hover:bg-ink-hover text-white">
             <Link href="/opportunities">Jobs</Link>
           </Button>
-          <Button variant="ghost" className="h-12 px-4 hover:bg-ink-hover text-white">
+          {/* <Button variant="ghost" className="h-12 px-4 hover:bg-ink-hover text-white">
             <Link href="/network">Agencies</Link>
-          </Button>
+          </Button> */}
           <Button variant="ghost" className="h-12 px-4 hover:bg-ink-hover text-white">
             <Link href="/messages">Events</Link>
           </Button>
           <Button variant="ghost" className="h-12 px-4 hover:bg-ink-hover text-white">
-            <Link href="/notifications">Assistant</Link>
+            <Link href="/network">Assistant</Link>
           </Button>
         </nav>
 

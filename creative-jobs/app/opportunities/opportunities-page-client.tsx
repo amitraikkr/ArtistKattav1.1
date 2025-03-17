@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -28,11 +28,34 @@ import {
   Users,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import DetailedView from '../../components/DetailedView'
+
+// Define the type for an opportunity
+interface Opportunity {
+  id: number;
+  title: string;
+  company: string;
+  companyLogo: string;
+  location: string;
+  type: string;
+  category: string;
+  salary: string;
+  postedDate: string;
+  deadline: string;
+  description: string;
+  featured: boolean;
+  applications: number;
+  email: string;
+}
 
 export default function OpportunitiesPageClient() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
   const [selectedLocation, setSelectedLocation] = useState<string>("all")
+  const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null)
+  const [isDetailViewOpen, setIsDetailViewOpen] = useState(false)
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+  const [filteredOpportunities, setFilteredOpportunities] = useState<Opportunity[]>([])
 
   const categories = [
     { id: "visual", name: "Visual Arts", icon: Palette },
@@ -50,157 +73,105 @@ export default function OpportunitiesPageClient() {
     { id: "internship", name: "Internship" },
   ]
 
-  const opportunities = [
-    {
-      id: 1,
-      title: "Senior Visual Artist",
-      company: "Creative Studios",
-      companyLogo: "/placeholder.svg",
-      location: "Mumbai, India",
-      type: "full-time",
-      category: "visual",
-      salary: "₹8L - ₹12L per year",
-      posted: "2 days ago",
-      deadline: "March 30, 2024",
-      description: "We're looking for a senior visual artist to join our creative team...",
-      requirements: [
-        "5+ years of experience in digital art",
-        "Proficiency in Adobe Creative Suite",
-        "Strong portfolio of commercial work",
-      ],
-      featured: true,
-      applications: 45,
-    },
-    {
-      id: 2,
-      title: "Music Producer",
-      company: "Harmony Records",
-      companyLogo: "/placeholder.svg",
-      location: "Delhi, India",
-      type: "contract",
-      category: "music",
-      salary: "₹5000 - ₹8000 per day",
-      posted: "1 week ago",
-      deadline: "April 15, 2024",
-      description: "Seeking an experienced music producer for upcoming album projects...",
-      requirements: [
-        "Experience with modern DAWs",
-        "Understanding of various music genres",
-        "Portfolio of produced tracks",
-      ],
-      featured: true,
-      applications: 67,
-    },
-    {
-      id: 3,
-      title: "Theatre Workshop Facilitator",
-      company: "National Theatre Academy",
-      companyLogo: "/placeholder.svg",
-      location: "Bangalore, India",
-      type: "part-time",
-      category: "performing",
-      salary: "₹2500 per workshop",
-      posted: "3 days ago",
-      deadline: "Ongoing",
-      description: "Looking for theatre artists to conduct regular workshops...",
-      requirements: [
-        "3+ years of theatre experience",
-        "Experience in conducting workshops",
-        "Good communication skills",
-      ],
-      featured: false,
-      applications: 23,
-    },
-  ]
+  useEffect(() => {
+    const fetchOpportunities = async () => {
+      try {
+        const response = await fetch("https://d69leb59mi.execute-api.ap-south-1.amazonaws.com/prod/jobs/date-range");
+        if (!response.ok) {
+          throw new Error("Failed to fetch opportunities");
+        }
+        const data = await response.json();
+        setOpportunities(data);
+      } catch (error) {
+        console.error("Error fetching opportunities:", error);
+      }
+    };
 
-  const featuredCompanies = [
-    {
-      id: 1,
-      name: "Creative Studios",
-      logo: "/placeholder.svg",
-      type: "Design Agency",
-      openings: 5,
-      location: "Mumbai",
-    },
-    {
-      id: 2,
-      name: "Harmony Records",
-      logo: "/placeholder.svg",
-      type: "Music Production",
-      openings: 3,
-      location: "Delhi",
-    },
-  ]
+    fetchOpportunities();
+  }, []);
 
-  const trendingSearches = [
-    "UI/UX Designer",
-    "Music Producer",
-    "Photography Assistant",
-    "Content Writer",
-    "Art Director",
-  ]
+  useEffect(() => {
+    setFilteredOpportunities(opportunities);
+  }, [opportunities]);
 
-  const filteredOpportunities = opportunities.filter((job) => {
-    if (selectedCategory !== "all" && job.category !== selectedCategory) return false
-    if (selectedType !== "all" && job.type !== selectedType) return false
-    if (selectedLocation !== "all" && !job.location.toLowerCase().includes(selectedLocation.toLowerCase())) return false
-    return true
-  })
+  const applyFilters = () => {
+    const filtered = opportunities.filter((job) => {
+      if (selectedCategory !== "all" && job.category !== selectedCategory) return false;
+      if (selectedType !== "all" && job.type !== selectedType) return false;
+      if (selectedLocation !== "all" && !job.location.toLowerCase().includes(selectedLocation.toLowerCase())) return false;
+      return true;
+    });
+    setFilteredOpportunities(filtered);
+  };
+
+  // Update the function to use the defined type
+  const handleApplyClick = (opportunity: Opportunity) => {
+    setSelectedOpportunity(opportunity)
+    setIsDetailViewOpen(true)
+  }
+
+  const calculateDaysAgo = (postedDate: string) => {
+    const posted = new Date(postedDate);
+    const now = new Date();
+    const differenceInTime = now.getTime() - posted.getTime();
+    const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+    return differenceInDays;
+  };
 
   return (
-    <div className="container max-w-7xl py-6 space-y-8">
+    <div className="container max-w-7xl py-6 space-y-8 bg-[#1A1A1A] text-white">
       {/* Header */}
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold text-white">Creative Opportunities</h1>
+        <h1 className="text-3xl font-bold">Creative Opportunities</h1>
         <p className="text-muted-foreground">
           Discover jobs, gigs, auditions, and opportunities in the creative industry
         </p>
       </div>
 
       {/* Search and Filters */}
-      <Card className="p-6 bg-ink-light border-ink">
+      <Card className="p-6 bg-[#1A1A1A] border-[#2f2f2f]">
         <div className="grid gap-4 md:grid-cols-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search opportunities..." className="pl-10 bg-ink-hover border-ink text-white" />
+            <Input placeholder="Search opportunities..." className="pl-10 bg-[#1f1f1f] border-[#2f2f2f] text-white rounded-lg shadow-md" />
           </div>
           <Select onValueChange={setSelectedCategory} defaultValue="all">
-            <SelectTrigger className="bg-ink-hover border-ink text-white">
+            <SelectTrigger className="bg-[#1f1f1f] border-[#2f2f2f] text-white rounded-lg shadow-md">
               <Filter className="mr-2 h-4 w-4" />
               <SelectValue placeholder="Category" />
             </SelectTrigger>
-            <SelectContent className="bg-ink-light border-ink">
+            <SelectContent className="bg-[#1A1A1A] border-[#2f2f2f] rounded-lg shadow-md">
               <SelectItem value="all">All Categories</SelectItem>
               {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
+                <SelectItem key={category.id} value={category.id} className="text-white">
                   {category.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Select onValueChange={setSelectedType} defaultValue="all">
-            <SelectTrigger className="bg-ink-hover border-ink text-white">
+            <SelectTrigger className="bg-[#1f1f1f] border-[#2f2f2f] text-white rounded-lg shadow-md">
               <Briefcase className="mr-2 h-4 w-4" />
               <SelectValue placeholder="Job Type" />
             </SelectTrigger>
-            <SelectContent className="bg-ink-light border-ink">
+            <SelectContent className="bg-[#1A1A1A] border-[#2f2f2f] rounded-lg shadow-md">
               <SelectItem value="all">All Types</SelectItem>
               {jobTypes.map((type) => (
-                <SelectItem key={type.id} value={type.id}>
+                <SelectItem key={type.id} value={type.id} className="text-white">
                   {type.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Select onValueChange={setSelectedLocation} defaultValue="all">
-            <SelectTrigger className="bg-ink-hover border-ink text-white">
+            <SelectTrigger className="bg-[#1f1f1f] border-[#2f2f2f] text-white rounded-lg shadow-md">
               <MapPin className="mr-2 h-4 w-4" />
               <SelectValue placeholder="Location" />
             </SelectTrigger>
-            <SelectContent className="bg-ink-light border-ink">
+            <SelectContent className="bg-[#1A1A1A] border-[#2f2f2f] rounded-lg shadow-md">
               <SelectItem value="all">All Locations</SelectItem>
               <SelectItem value="mumbai">Mumbai</SelectItem>
-              <SelectItem value="delhi">Delhi</SelectItem>
+              <SelectItem value="delhi">Pune</SelectItem>
               <SelectItem value="bangalore">Bangalore</SelectItem>
             </SelectContent>
           </Select>
@@ -208,21 +179,17 @@ export default function OpportunitiesPageClient() {
       </Card>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6">
         {/* Opportunities List */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6">
           {/* Quick Filters */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {jobTypes.map((type) => (
-              <Button
-                key={type.id}
-                variant={selectedType === type.id ? "default" : "outline"}
-                className="border-ink text-white hover:bg-ink-hover whitespace-nowrap"
-                onClick={() => setSelectedType(type.id)}
-              >
-                {type.name}
-              </Button>
-            ))}
+          <div className="flex justify-end gap-2 overflow-x-auto pb-2">
+            <Button className="border-ink text-white hover:bg-ink-hover whitespace-nowrap">
+              Cancel
+            </Button>
+            <Button className="border-ink text-white hover:bg-ink-hover whitespace-nowrap" onClick={applyFilters}>
+              Apply
+            </Button>
           </div>
 
           {/* Opportunities */}
@@ -268,7 +235,7 @@ export default function OpportunitiesPageClient() {
                     </div>
                     <div className="flex flex-wrap gap-2 mt-2">
                       <Badge variant="outline" className="border-primary/20 text-primary">
-                        {jobTypes.find((t) => t.id === job.type)?.name}
+                        {job.type}
                       </Badge>
                       <Badge variant="outline" className="border-ink text-white">
                         <MapPin className="mr-1 h-3 w-3" />
@@ -279,22 +246,26 @@ export default function OpportunitiesPageClient() {
                         {job.salary}
                       </Badge>
                     </div>
-                    <p className="mt-3 text-muted-foreground">{job.description}</p>
+                    <p className="mt-3 text-muted-foreground">
+                      {job.description.length > 60 ? `${job.description.substring(0, 80)}...` : job.description}
+                    </p>
                     <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-ink">
                       <div className="flex items-center text-sm text-muted-foreground">
                         <Clock className="mr-1 h-4 w-4" />
-                        Posted {job.posted}
+                        Posted {calculateDaysAgo(job.postedDate)} days ago
                       </div>
                       <div className="flex items-center text-sm text-muted-foreground">
                         <Calendar className="mr-1 h-4 w-4" />
                         Deadline: {job.deadline}
                       </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
+                      {/* <div className="flex items-center text-sm text-muted-foreground">
                         <Users className="mr-1 h-4 w-4" />
                         {job.applications} applications
-                      </div>
+                      </div> */}
                       <div className="ml-auto">
-                        <Button className="bg-primary hover:bg-primary/90">Apply Now</Button>
+                        <Button className="bg-primary hover:bg-primary/90" onClick={() => handleApplyClick(job)}>
+                          Apply Now
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -303,74 +274,14 @@ export default function OpportunitiesPageClient() {
             ))}
           </div>
         </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Featured Companies */}
-          <Card className="p-4 bg-ink-light border-ink">
-            <h2 className="text-lg font-semibold text-white mb-4">Featured Companies</h2>
-            <div className="space-y-4">
-              {featuredCompanies.map((company) => (
-                <div key={company.id} className="flex items-center gap-3">
-                  <Image
-                    src={company.logo || "/placeholder.svg"}
-                    alt={company.name}
-                    width={48}
-                    height={48}
-                    className="rounded-lg"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-white">{company.name}</h3>
-                    <p className="text-sm text-muted-foreground">{company.type}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-primary">{company.openings} jobs</div>
-                    <div className="text-xs text-muted-foreground">{company.location}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Trending Searches */}
-          <Card className="p-4 bg-ink-light border-ink">
-            <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
-              <TrendingUp className="mr-2 h-5 w-5" />
-              Trending Searches
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {trendingSearches.map((search, index) => (
-                <Badge
-                  key={index}
-                  variant="outline"
-                  className="border-primary/20 text-primary cursor-pointer hover:border-primary"
-                >
-                  {search}
-                </Badge>
-              ))}
-            </div>
-          </Card>
-
-          {/* Quick Tips */}
-          <Card className="p-4 bg-ink-light border-ink">
-            <h2 className="text-lg font-semibold text-white mb-4">Quick Tips</h2>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Keep your portfolio updated to increase visibility
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Follow companies to get notified of new opportunities
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                Complete your profile to improve application success
-              </li>
-            </ul>
-          </Card>
-        </div>
       </div>
+
+      {isDetailViewOpen && selectedOpportunity && (
+        <DetailedView
+          item={selectedOpportunity}
+          onClose={() => setIsDetailViewOpen(false)}
+        />
+      )}
     </div>
   )
 }

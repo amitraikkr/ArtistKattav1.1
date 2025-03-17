@@ -77,7 +77,7 @@ export default function LoginPageClient() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <Button
               variant="outline"
               className="border-ink text-white hover:bg-ink-hover"
@@ -92,7 +92,8 @@ export default function LoginPageClient() {
               <Icons.google className="mr-2 h-4 w-4" />
               Google
             </Button>
-            <Button
+
+            {/* <Button
               variant="outline"
               className="border-ink text-white hover:bg-ink-hover"
               onClick={() => {
@@ -105,7 +106,7 @@ export default function LoginPageClient() {
             >
               <Icons.facebook className="mr-2 h-4 w-4" />
               Facebook
-            </Button>
+            </Button> */}
           </div>
 
           <p className="px-8 text-center text-sm text-muted-foreground">

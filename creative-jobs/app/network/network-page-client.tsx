@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search, MapPin, Briefcase, Users2 } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Send } from "lucide-react"
 
 // Temporary mock data
 const mockUsers = [
@@ -46,89 +48,76 @@ const mockUsers = [
 
 const categories = ["All Categories", "Visual Arts", "Music", "Theater & Film", "Dance", "Literature", "Photography"]
 
-export default function NetworkPageClient() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("All Categories")
+export default function ChatBotPageClient() {
+  const [messages, setMessages] = useState([
+    { id: 1, sender: "bot", content: "Hello! How can I assist you today?" },
+  ])
+  const [messageInput, setMessageInput] = useState("")
+
+  const handleSendMessage = () => {
+    if (messageInput.trim()) {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { id: prevMessages.length + 1, sender: "user", content: messageInput },
+      ])
+      setMessageInput("")
+      // Simulate bot response
+      setTimeout(() => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { id: prevMessages.length + 1, sender: "bot", content: "I'm here to help!" },
+        ])
+      }, 1000)
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Creative Network</h1>
-        <p className="text-muted-foreground">Connect with talented artists and creative professionals</p>
+    <div className="flex flex-col h-screen bg-background">
+      {/* Chat Header */}
+      <div className="p-4 border-b">
+        <h1 className="text-2xl font-bold">Creative Assistant</h1>
       </div>
 
-      {/* Search and Filter Section */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, profession, or location..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
+      {/* Chat Messages */}
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="space-y-4">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={cn(
+                "flex",
+                message.sender === "user" ? "justify-end" : "justify-start",
+              )}
+            >
+              <div
+                className={cn(
+                  "max-w-xs p-3 rounded-lg",
+                  message.sender === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                {message.content}
+              </div>
+            </div>
+          ))}
         </div>
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
-      {/* Network Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {mockUsers.map((user) => (
-          <Card key={user.id} className="overflow-hidden">
-            <CardHeader className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">{user.name}</h3>
-                    <p className="text-sm text-muted-foreground">{user.username}</p>
-                  </div>
-                </div>
-                <Button variant="secondary" size="sm">
-                  Connect
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Briefcase className="h-4 w-4" />
-                {user.profession}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                {user.location}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Users2 className="h-4 w-4" />
-                {user.connections} connections
-              </div>
-            </CardContent>
-            <CardFooter>
-              <div className="flex flex-wrap gap-2">
-                {user.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
+      {/* Message Input */}
+      <div className="p-4 border-t">
+        <div className="flex items-center space-x-2">
+          <Input
+            placeholder="Type a message..."
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+            className="flex-1"
+          />
+          <Button onClick={handleSendMessage}>
+            <Send className="h-4 w-4 mr-2" />
+            Send
+          </Button>
+        </div>
       </div>
     </div>
   )
